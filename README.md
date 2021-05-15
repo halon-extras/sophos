@@ -1,9 +1,15 @@
-## sophos_av(mailpath)
+## sophos_av(fp[, options])
 
-Scan a message (mailpath) using the Sophos virus engine using the Sophie protocol.
+Scan a File pointer (fp) with the Sophos anti-virus.
 
 **Params**
 
-- mailpath `string` - Path to a mail file
+- fp `File` - the mail file
+- options `array` - options array
 
-**Returns**: A `string` if a virus is found (with the virus name), `false` if the message was clean or `none` on error.
+**Returns**: A `array` of viruses found, the array is empty if the message was clean or `none` on error.
+
+The following options are available in the **options** array.
+
+- timeout `number` - Timeout in seconds. The default is 5 seconds.
+- path `string` - Path to a the savdid unix socket. The default is `/var/run/sssp.sock`

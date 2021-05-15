@@ -1,22 +1,54 @@
-function sophos_av($mailpath)
+function sophos_av($fp, $opts)
 {
-    $socketpath = "/var/run/sophie.sock";
-    $socket = Socket("AF_UNIX", "SOCK_STREAM");
-    $socket->settimeout(30);
-    if (!$socket->connect($socketpath))
-        return none;
-    if (!$socket->send("$mailpath\n"))
-        return none;
+	$timeout = $opts["timeout"] ?? 5000;
+	$path = $opts["path"] ?? "/var/run/sssp.sock";
 
-    $response = "";
+	$socket = Socket("AF_UNIX", "SOCK_STREAM");
+	$socket->settimeout($timeout / 1000);
+	if (!$socket->connect($path))
+		return;
+
+	$response = "";
 	while (($resp = $socket->recv(1)) and $resp[0] != "\n")
-        $response .= $resp;
-    $socket->close();
+		$response .= $resp;
 
-    [$code, $virus] = explode(":", $response);
-    if ($code == "1")
-        return $virus;
-    if ($code == "0")
-        return false; 
-    return none;
+	if (str_strip($response) != "OK SSSP/1.0")
+		return;
+
+	$length = $fp->seek(0, "SEEK_END");
+	$fp->seek(0, "SEEK_SET");
+
+	if (!$socket->send("SSSP/1.0 SCANDATA $length\n"))
+		return;
+
+	while ($str = $fp->read(8192))
+		if (!$socket->send($str))
+			return;
+
+	$virus = [];
+	while (true)
+	{
+		$response = "";
+		while (($resp = $socket->recv(1)) and $resp[0] != "\n")
+		{
+			if ($resp == none)
+				return;
+			$response .= $resp;
+		}
+
+		$d = pcre_match("/^VIRUS ([^ ]+) .*$/", $response);
+		if ($d)
+		{
+			$virus[] = $d[1];
+			continue;
+		}
+
+		$d = pcre_match("/^DONE (FAIL|OK) ([^ ]+) (.*)$/", $response);
+		if ($d)
+		{
+			if ($d[1] == "OK")
+				return $virus;
+			return;
+		}
+	}
 }
