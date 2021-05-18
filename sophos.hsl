@@ -1,11 +1,13 @@
 function sophos_av($fp, $opts)
 {
-	$timeout = $opts["timeout"] ?? 5000;
 	$path = $opts["path"] ?? "/var/run/sssp.sock";
+	$host = $opts["host"];
+	$port = $opts["port"];
+	$timeout = $opts["timeout"] ?? 5;
 
-	$socket = Socket("AF_UNIX", "SOCK_STREAM");
-	$socket->settimeout($timeout / 1000);
-	if (!$socket->connect($path))
+	$socket = Socket($host ? Socket::AF($host) : "AF_UNIX", "SOCK_STREAM");
+	$socket->settimeout($timeout);
+	if (!$socket->connect(...($host ? [$host, $port] : [$path])))
 		return;
 
 	$response = "";
