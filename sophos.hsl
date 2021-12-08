@@ -5,7 +5,7 @@ function sophos_av($fp, $opts = [])
 	$port = $opts["port"] ?? 0;
 	$timeout = $opts["timeout"] ?? 5;
 
-	$socket = Socket($address ? Socket::AF($address) : "AF_UNIX", "SOCK_STREAM");
+	$socket = Socket($port ? Socket::AF($address) : "AF_UNIX", "SOCK_STREAM");
 	$socket->settimeout($timeout);
 	if (!$socket->connect(...($port ? [$address, $port] : [$path])))
 		return ["error" => "connect error"];
