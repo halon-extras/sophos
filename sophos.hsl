@@ -1,33 +1,33 @@
-function sophos_av($fp, $opts)
+function sophos_av($fp, $opts = [])
 {
 	$path = $opts["path"] ?? "/var/run/sssp.sock";
-	$host = $opts["host"];
-	$port = $opts["port"];
+	$address = $opts["address"] ?? "127.0.0.1";
+	$port = $opts["port"] ?? 0;
 	$timeout = $opts["timeout"] ?? 5;
 
-	$socket = Socket($host ? Socket::AF($host) : "AF_UNIX", "SOCK_STREAM");
+	$socket = Socket($address ? Socket::AF($address) : "AF_UNIX", "SOCK_STREAM");
 	$socket->settimeout($timeout);
-	if (!$socket->connect(...($host ? [$host, $port] : [$path])))
-		return;
+	if (!$socket->connect(...($port ? [$address, $port] : [$path])))
+		return ["error" => "connect error"];
 
 	$response = "";
 	while (($resp = $socket->recv(1)) and $resp[0] != "\n")
 		$response .= $resp;
 
 	if (str_strip($response) != "OK SSSP/1.0")
-		return;
+		return ["error" => "protocol error"];
 
 	$length = $fp->seek(0, "SEEK_END");
 	$fp->seek(0, "SEEK_SET");
 
 	if (!$socket->send("SSSP/1.0 SCANDATA $length\n"))
-		return;
+		return ["error" => "send error"];
 
 	while ($str = $fp->read(8192))
 		if (!$socket->send($str))
-			return;
+			return ["error" => "read error"];
 
-	$virus = [];
+	$result = [];
 	while (true)
 	{
 		$response = "";
@@ -41,16 +41,17 @@ function sophos_av($fp, $opts)
 		$d = pcre_match("/^VIRUS ([^ ]+) .*$/", $response);
 		if ($d)
 		{
-			$virus[] = $d[1];
+			$result["virus"][] = $d[1];
 			continue;
 		}
 
 		$d = pcre_match("/^DONE (FAIL|OK) ([^ ]+) (.*)$/", $response);
 		if ($d)
 		{
-			if ($d[1] == "OK")
-				return $virus;
-			return;
+			if ($d[1] == "FAIL")
+				$result["error"] = $d[2];
+			break;
 		}
 	}
+	return $result;
 }
