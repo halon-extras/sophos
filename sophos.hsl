@@ -25,7 +25,7 @@ function sophos_av($fp, $opts = [])
 
 	while ($str = $fp->read(8192))
 		if (!$socket->send($str))
-			return ["error" => "read error"];
+			return ["error" => "send error"];
 
 	$result = [];
 	while (true)
@@ -34,7 +34,7 @@ function sophos_av($fp, $opts = [])
 		while (($resp = $socket->recv(1)) and $resp[0] != "\n")
 		{
 			if ($resp == none)
-				return;
+				return ["error" => "recv error"];
 			$response .= $resp;
 		}
 
