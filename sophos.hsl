@@ -45,6 +45,13 @@ function sophos_av($fp, $opts = [])
 			continue;
 		}
 
+		$d = pcre_match("/^SANDBOX.*$/", $response);
+		if ($d)
+		{
+			$result["sandbox"] = true;
+			continue;
+		}
+
 		$d = pcre_match("/^DONE (FAIL|OK) ([^ ]+) (.*)$/", $response);
 		if ($d)
 		{
