@@ -15,3 +15,13 @@ The following options are available in the **options** array.
 - port `number` - TCP port of the savdid server.
 
 **Returns**: An associative array, with a `virus` property containing a list of viruses found (array of strings). If an error occures an `error` property (string) is set contaning the error message.
+
+## Example
+
+```
+import { sophos_av } from "extras://sophos";
+
+$sophos = sophos_av($mail->toFile());
+if ($sophos["virus"])
+  Reject("Virus found");
+```
