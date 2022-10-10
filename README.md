@@ -18,6 +18,8 @@ yum install halon-extras-sophos
 
 ## Exported functions
 
+These functions needs to be [imported](https://docs.halon.io/hsl/structures.html#import) from the `extras://sophos` module path.
+
 ### sophos_av(fp[, options])
 
 Scan a File pointer (fp) with the Sophos anti-virus.
