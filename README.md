@@ -1,4 +1,24 @@
-## sophos_av(fp[, options])
+# Sophos anti-virus client plugin
+
+## Installation
+
+Follow the [instructions](https://docs.halon.io/manual/comp_install.html#installation) in our manual to add our package repository and then run the below command.
+
+### Ubuntu
+
+```
+apt-get install halon-extras-sophos
+```
+
+### RHEL
+
+```
+yum install halon-extras-sophos
+```
+
+## Exported functions
+
+### sophos_av(fp[, options])
 
 Scan a File pointer (fp) with the Sophos anti-virus.
 
@@ -14,9 +34,11 @@ The following options are available in the **options** array.
 - address `string` - Address of the savdid server.
 - port `number` - TCP port of the savdid server.
 
-**Returns**: An associative array, with a `virus` property containing a list of viruses found (array of strings). If an error occures an `error` property (string) is set contaning the error message.
+**Returns**
 
-## Example
+An associative array, with a `virus` property containing a list of viruses found (array of strings). If an error occures an `error` property (string) is set contaning the error message.
+
+**Example**
 
 ```
 import { sophos_av } from "extras://sophos";
