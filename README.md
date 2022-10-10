@@ -1,4 +1,4 @@
-# Sophos anti-virus client plugin
+# Sophos anti-virus client
 
 ## Installation
 
