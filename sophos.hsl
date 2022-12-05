@@ -32,11 +32,9 @@ function sophos_av($fp, $opts = [])
 	{
 		$response = "";
 		while (($resp = $socket->recv(1)) and $resp[0] != "\n")
-		{
-			if ($resp == none)
-				return ["error" => "recv error"];
 			$response .= $resp;
-		}
+		if (!$response or $resp[0] != "\n")
+			return ["error" => "recv error"];
 
 		$d = pcre_match("/^VIRUS ([^ ]+) .*$/", $response);
 		if ($d)
