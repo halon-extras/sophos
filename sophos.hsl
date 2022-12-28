@@ -60,3 +60,54 @@ function sophos_av($fp, $opts = [])
 	}
 	return $result;
 }
+
+function sophos_as($fp, $opts = [])
+{
+	$address = $opts["address"] ?? "127.0.0.1";
+	$port = $opts["port"] ?? 25315;
+	$timeout = $opts["timeout"] ?? 5;
+
+	$length = $fp->seek(0, "SEEK_END");
+	$fp->seek(0, "SEEK_SET");
+	$result = http("http://".$address.":".$port,
+				[
+					"timeout" => $timeout,
+					"extended_result" => true,
+					"headers" => [
+						"Transfer-Encoding: ",
+						"X-LASED-Pver: 0000002",
+						"X-LASED-ReqType: message",
+						"Content-Type: application/octet-stream",
+						"Connection: close",
+						"Content-Length:" .$length,
+					]
+				], [], function ($maxread) closure ($fp) {
+					return $fp->read($maxread);
+				}
+			);
+
+	if ($result["status"] != 200)
+		return ["error" => $result["content"] ?: "http-error " . $result["status"]];
+
+	return array_reduce(function($carry, $x) {
+			return [...$carry, str_replace("X-LASED-", "", $x[0]) => match($x[0]) {
+				"X-LASED-Impersonation" => $x[1] == "True",
+				"X-LASED-SpamProbability" => number($x[1]),
+				"X-LASED-Hits" => array_reduce(function($carry, $x) {
+							return [...$carry, $x[0] => number($x[1])];
+						},
+						array_map(function ($str) {
+							return str_split($str, " ", 2);
+						}, str_split($x[1], ", ")), []),
+				"X-LASED-Version" => array_reduce(function($carry, $x) {
+							return [...$carry, $x[0] => $x[1]];
+						},
+						array_map(function ($str) {
+							return str_split($str, ": ", 2);
+						}, str_split($x[1], ", ")), []),
+				default => $x[1]
+			}];
+		}, array_map(function ($str) {
+			return str_split($str, ": ", 2);
+		}, str_split(str_strip($result["content"]), "\r\n")), []);
+}

@@ -1,1 +1,1 @@
-import { sophos_av } from "./sophos.hsl";
+import { sophos_av, sophos_as } from "./sophos.hsl";
