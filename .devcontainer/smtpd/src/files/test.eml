@@ -1,0 +1,18 @@
+MIME-Version: 1.0
+Message-ID: <2cbdca3b-a2e8-11ed-8ace-000c29508912@localhost>
+Date: Thu, 02 Feb 2023 10:55:58 +0000
+From: <sender@example.org>
+To: <recipient@example.com>
+Subject: Hello World
+Content-Type: multipart/alternative;
+ boundary="2cbde8b3-a2e8-11ed-8ace-000c29508912"
+
+--2cbde8b3-a2e8-11ed-8ace-000c29508912
+Content-Type: text/plain; charset=utf-8
+
+*Hello World*
+--2cbde8b3-a2e8-11ed-8ace-000c29508912
+Content-Type: text/html; charset=utf-8
+
+<strong>Hello World</strong>
+--2cbde8b3-a2e8-11ed-8ace-000c29508912--

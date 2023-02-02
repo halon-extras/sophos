@@ -1,0 +1,5 @@
+import { sophos_as, sophos_av } from "file://sophos.hsl";
+import $mail from "test.eml";
+
+echo sophos_av($mail->toFile());
+echo sophos_as($mail->toFile());
