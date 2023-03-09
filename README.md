@@ -67,7 +67,7 @@ The following options are available in the **options** array.
 
 **Returns**
 
-An associative array with all `X-LASED-` headers included (without the prefix). Spam determiation should use the `Spam` array value (`Confirmed` or `NonSpam`). If an error occures an `error` property (string) is set contaning the error message.
+An associative array with all `X-LASED-` headers included (without the prefix). Spam determination should use the `Spam` array value (`Confirmed` or `NonSpam`). If an error occures an `error` property (string) is set contaning the error message.
 
 **Example**
 
