@@ -23,7 +23,7 @@ function sophos_av($fp, $opts = [])
 
 	$container = "Content-Type: message/rfc822\r\n\r\n";
 	if ($rfc822)
-		$length += $container;
+		$length += length($container);
 
 	if (!$socket->send("SSSP/1.0 SCANDATA $length\n"))
 		return ["error" => "send error"];
