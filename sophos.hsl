@@ -4,6 +4,7 @@ function sophos_av($fp, $opts = [])
 	$address = $opts["address"] ?? "127.0.0.1";
 	$port = $opts["port"] ?? 0;
 	$timeout = $opts["timeout"] ?? 5;
+	$rfc822 = $opts["rfc822"] ?? true;
 
 	$socket = Socket($port ? Socket::AF($address) : "AF_UNIX", "SOCK_STREAM");
 	$socket->settimeout($timeout);
@@ -20,8 +21,16 @@ function sophos_av($fp, $opts = [])
 	$length = $fp->seek(0, "SEEK_END");
 	$fp->seek(0, "SEEK_SET");
 
+	$container = "Content-Type: message/rfc822\r\n\r\n";
+	if ($rfc822)
+		$length += $container;
+
 	if (!$socket->send("SSSP/1.0 SCANDATA $length\n"))
 		return ["error" => "send error"];
+
+	if ($rfc822)
+		if (!$socket->send($container))
+			return ["error" => "send error"];
 
 	while ($str = $fp->read(8192))
 		if (!$socket->send($str))

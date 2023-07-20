@@ -22,7 +22,7 @@ These functions needs to be [imported](https://docs.halon.io/hsl/structures.html
 
 ### sophos_av(fp[, options])
 
-Scan a File pointer (fp) with the Sophos anti-virus.
+Scan a File pointer (fp) with the Sophos anti-virus. If attachements are scanned separately, change the `rfc822` options to false.
 
 **Params**
 
@@ -31,6 +31,7 @@ Scan a File pointer (fp) with the Sophos anti-virus.
 
 The following options are available in the **options** array.
 
+- rfc822 `boolean` - Scan the content as a "rfc822" message (do not rely on auto-detection). The default is true.
 - timeout `number` - Timeout in seconds. The default is 5 seconds.
 - path `string` - Path to a the savdid unix socket. The default is `/var/run/sssp.sock`
 - address `string` - Address of the savdid server.
