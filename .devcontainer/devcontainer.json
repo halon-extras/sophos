@@ -3,11 +3,15 @@
   "context": "..",
   "dockerFile": "./Dockerfile",
   "overrideCommand": false,
-  "extensions": [
-    "Halon.vscode-halon",
-    "Halon.hsl-linter",
-    "Halon.hsl-debug"
-  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Halon.vscode-halon",
+        "Halon.hsl-linter",
+        "Halon.hsl-debug"
+      ]
+    }
+  },
   "mounts": [
     "source=${localWorkspaceFolder}/.devcontainer/smtpd/dist,target=/etc/halon,type=bind,consistency=cached"
   ],
