@@ -67,6 +67,13 @@ function sophos_av($fp, $opts = [])
 			break;
 		}
 	}
+
+	if ($socket->send("BYE\n"))
+	{
+		while (($resp = $socket->recv(1)) and $resp[0] != "\n")
+			continue;
+	}
+
 	return $result;
 }
 
