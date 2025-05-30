@@ -45,21 +45,21 @@ function sophos_av($fp, $opts = [])
 		if (!$response or $resp[0] != "\n")
 			return ["error" => "recv error"];
 
-		$d = pcre_match("/^VIRUS ([^ ]+) .*$/", $response);
+		$d = pcre_match(#/^VIRUS ([^ ]+) .*$/, $response);
 		if ($d)
 		{
 			$result["virus"][] = $d[1];
 			continue;
 		}
 
-		$d = pcre_match("/^SANDBOX.*$/", $response);
+		$d = pcre_match(#/^SANDBOX.*$/, $response);
 		if ($d)
 		{
 			$result["sandbox"] = true;
 			continue;
 		}
 
-		$d = pcre_match("/^DONE (FAIL|OK) ([^ ]+) (.*)$/", $response);
+		$d = pcre_match(#/^DONE (FAIL|OK) ([^ ]+) (.*)$/, $response);
 		if ($d)
 		{
 			if ($d[1] == "FAIL")
