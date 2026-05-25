@@ -39,7 +39,7 @@ The following options are available in the **options** array.
 
 **Returns**
 
-An associative array, with a `virus` property containing a list of viruses found (array of strings). If an error occures an `error` property (string) is set contaning the error message.
+An associative array, with a `virus` property containing a list of viruses found (array of strings). If an error occures an `error` property (string) is set contaning the error message. Additional properties include `tft.types` and `sandbox` recommendation.
 
 **Example**
 

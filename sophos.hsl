@@ -59,6 +59,13 @@ function sophos_av($fp, $opts = [])
 			continue;
 		}
 
+		$d = pcre_match(#/^TFT TYPE (.*)$/, $response);
+		if ($d)
+		{
+			$result["tft"]["types"][] = url_decode(str_strip($d[1]));
+			continue;
+		}
+
 		$d = pcre_match(#/^DONE (FAIL|OK) ([^ ]+) (.*)$/, $response);
 		if ($d)
 		{
