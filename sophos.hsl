@@ -59,6 +59,38 @@ function sophos_av($fp, $opts = [])
 			continue;
 		}
 
+		$d = pcre_match(#/^DLP CCL (.*)$/, $response);
+		if ($d)
+		{
+			[$name, $location] = str_split(str_strip($d[1]), " ");
+			$result["dlp"]["ccl"][]["name"] = url_decode($name);
+			if ($location)
+				$result["dlp"]["ccl"][length($result["dlp"]["ccl"]) - 1]["location"] = url_decode($location);
+			continue;
+		}
+		$d = pcre_match(#/^DLP MATCHES (\d+) TRIGGERED (True|False) SCORE (\d+)/, $response);
+		if ($d)
+		{
+			$result["dlp"]["ccl"][length($result["dlp"]["ccl"]) - 1]["matches"] = number($d[1]);
+			$result["dlp"]["ccl"][length($result["dlp"]["ccl"]) - 1]["triggered"] = $d[2] == "True";
+			$result["dlp"]["ccl"][length($result["dlp"]["ccl"]) - 1]["score"] = number($d[3]);
+			continue;
+		}
+		$d = pcre_match(#/^DLP MATCH (\d+)/, $response);
+		if ($d)
+		{
+			$result["dlp"]["ccl"][length($result["dlp"]["ccl"]) - 1]["match"][] = [];
+			continue;
+		}
+		$d = pcre_match(#/^DLP MATCH(TEXT|PREFIX|SUFFIX) (.*)/, $response);
+		if ($d)
+		{
+			$result["dlp"]["ccl"][length($result["dlp"]["ccl"]) - 1]["match"][
+				length($result["dlp"]["ccl"][length($result["dlp"]["ccl"]) - 1]["match"]) - 1
+			][str_lower($d[1])] = url_decode(str_strip($d[2]));
+			continue;
+		}
+
 		$d = pcre_match(#/^TFT TYPE (.*)$/, $response);
 		if ($d)
 		{

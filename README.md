@@ -1,4 +1,4 @@
-# Sophos anti-virus and anti-spam clients
+# Sophos anti-virus, DLP and anti-spam clients
 
 ## Installation
 
@@ -22,7 +22,7 @@ These functions needs to be [imported](https://docs.halon.io/hsl/structures.html
 
 ### sophos_av(fp[, options])
 
-Scan a File pointer (fp) with the Sophos anti-virus. If attachements are scanned separately, change the `rfc822` options to false.
+Scan a File pointer (fp) with the Sophos anti-virus and DLP engine (over the SSSP protocol). If attachements are scanned separately, change the `rfc822` options to false.
 
 **Params**
 
@@ -39,7 +39,7 @@ The following options are available in the **options** array.
 
 **Returns**
 
-An associative array, with a `virus` property containing a list of viruses found (array of strings). If an error occures an `error` property (string) is set contaning the error message. Additional properties include `tft.types` and `sandbox` recommendation.
+An associative array, with a `virus` property containing a list of viruses found (array of strings). Additional properties may include `tft.types`, `dlp.ccl` and `sandbox` recommendation depending on savdid settings. If an error occures an `error` property (string) is set contaning the error message.
 
 **Example**
 
