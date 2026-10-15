@@ -121,23 +121,40 @@ function sophos_as($fp, $opts = [])
 	$address = $opts["address"] ?? "127.0.0.1";
 	$port = $opts["port"] ?? 25315;
 	$timeout = $opts["timeout"] ?? 5;
+	$has_bec = isset($opts["bec"]);
 
 	$length = $fp->seek(0, "SEEK_END");
 	$fp->seek(0, "SEEK_SET");
+
+	$bec = "";
+	if ($has_bec) {
+		$bec = json_encode($opts["bec"]);
+		if ($bec === none)
+			return ["error" => "Unable to encode BEC context"];
+		$length += length($bec);
+	}
+
 	$result = http("http://".$address.":".$port,
 				[
 					"timeout" => $timeout,
 					"extended_result" => true,
+					"post_size" => $length,
 					"headers" => [
 						"Transfer-Encoding: ",
 						"X-LASED-Pver: 0000002",
 						"X-LASED-ReqType: message",
+						"X-LASED-MessageContext: ".($has_bec ? "True" : "False"),
 						"Content-Type: application/octet-stream",
 						"Connection: close",
-						"Content-Length:" .$length,
+						"Content-Length: " .$length,
 					]
-				], [], function ($maxread) closure ($fp) {
-					return $fp->read($maxread);
+				], [], function ($size) closure ($bec, $fp) {
+					if ($bec !== "") {
+						$chunk = $bec[0:$size];
+						$bec = $bec[$size:];
+						return $chunk;
+					}
+					return $fp->read($size);
 				}
 			);
 
@@ -165,4 +182,47 @@ function sophos_as($fp, $opts = [])
 		}, array_map(function ($str) {
 			return str_split($str, ": ", 2);
 		}, str_split(str_strip($result["content"]), "\r\n")), []);
+}
+
+function sophos_bec($fp, $opts = [])
+{
+	$address = $opts["address"] ?? "127.0.0.1";
+	$port = $opts["port"] ?? 8080;
+	$timeout = $opts["timeout"] ?? 5;
+
+    $filename = "scanme";
+    $boundary = uuid();
+    $preamble = array_join([
+        "--".$boundary,
+        "Content-Disposition: form-data; name=\"file\"; filename=\"".$filename."\"",
+        "Content-Type: application/octet-stream",
+    ], "\r\n")."\r\n\r\n";
+    $postamble = "\r\n--".$boundary."--\r\n";
+    $data = [$preamble, $fp, $postamble];
+    $response = http("http://".$address.":".$port."/v1/analysis", [
+            "timeout" => $timeout,
+            "extended_result" => true,
+            "headers" => [ 
+                "Content-type: multipart/form-data; boundary=" . $boundary
+            ]
+        ], [], function ($size) closure ($data) {
+            while (length($data)) {
+                if (is_string($data[0])) {
+                    $x = $data[0][0:$size];
+                    $data[0] = $data[0][$size:];
+                } else {
+                    $x = $data[0]->read($size);
+                }
+                if ($x !== "")
+                    return $x;
+                $data = $data[1:];
+            }
+            return ["error" => "unknown error"];
+        }
+    );
+
+    if(!$response) return ["error" => "empty response"];
+    if($response["status"] != 200) return ["error" => "non 200 status"];
+
+    return json_decode($response["content"]);
 }
