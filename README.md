@@ -65,7 +65,7 @@ The following options are available in the **options** array.
 - timeout `number` - Timeout in seconds. The default is 5 seconds.
 - address `string` - Address of the sasi daemon (lased) server.
 - port `number` - TCP port of the sasi daemon (lased) server.
-- bec results `data` - 
+- bec `data` - data from `sophos_bec()`
 
 **Returns**
 
