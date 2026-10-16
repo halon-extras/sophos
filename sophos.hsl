@@ -128,7 +128,20 @@ function sophos_as($fp, $opts = [])
 
 	$bec = "";
 	if ($has_bec) {
-		$bec = json_encode($opts["bec"]);
+		$bec = json_encode([
+            "schema_version" => 1,
+            "models" => [
+                [
+                    "name" => "email-spam",
+                    "score" => 50,
+                    "score_object" => [
+                        "spam" => $opts["bec"]["spam"]["score"],
+                        "bulk" => $opts["bec"]["bulk"]["score"],
+                        "threat" => $opts["bec"]["threat"]["score"]
+                    ]
+                ]
+            ]
+        ]);
 		if ($bec === none)
 			return ["error" => "Unable to encode BEC context"];
 		$length += length($bec);
@@ -202,7 +215,7 @@ function sophos_bec($fp, $opts = [])
     $response = http("http://".$address.":".$port."/v1/analysis", [
             "timeout" => $timeout,
             "extended_result" => true,
-            "headers" => [ 
+            "headers" => [
                 "Content-type: multipart/form-data; boundary=" . $boundary
             ]
         ], [], function ($size) closure ($data) {
@@ -217,12 +230,12 @@ function sophos_bec($fp, $opts = [])
                     return $x;
                 $data = $data[1:];
             }
-            return ["error" => "unknown error"];
+            return "";
         }
     );
 
-    if(!$response) return ["error" => "empty response"];
-    if($response["status"] != 200) return ["error" => "non 200 status"];
+    if (!$response) return ["error" => "non empty response"];
+    if ($response["status"] != 200) return ["error" => "non 200 response"];
 
     return json_decode($response["content"]);
 }
